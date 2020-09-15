@@ -7,7 +7,8 @@ indir="/Users/jason/Nextcloud/MME1Data/ZooMSS_Climate_Change/raw/chl/"
 outdir="/Users/jason/Nextcloud/MME1Data/ZooMSS_Climate_Change/regrid/chl/"
 
 # Declare an array of string with type
-declare -a ModelArray=("CESM2" "GFDL-ESM4" "IPSL-CM6A-LR" "MPI-ESM1" "UKESM1-0-LL")
+#declare -a ModelArray=("CESM2" "GFDL-ESM4" "IPSL-CM6A-LR" "MPI-ESM1" "UKESM1-0-LL")
+declare -a ModelArray=("IPSL-CM6A-LR")
 declare -a ExpArray=("historical" "ssp126" "ssp370" "ssp585")
 
 # Iterate the string array using for loop
@@ -28,7 +29,7 @@ for m in ${ModelArray[@]}; do
 			cdo -sellevidx,1 $curr_file $out_name1 # Extract layer 1 (surface)
 			
 			out_name2="tempfile_chl2.nc"
-			cdo -remapbil,global_1 $out_name1 $out_name2 # Remap to 1 degree global on the half-degree
+			cdo -remapbil,global_1 -selname,chl $out_name1 $out_name2 # Remap to 1 degree global on the half-degree
 
 			annual_name=${curr_file/_gn_/_onedeg_} # Replace gn or gr with onedeg in filename
 			annual_name=${annual_name/_gr_/_onedeg_}

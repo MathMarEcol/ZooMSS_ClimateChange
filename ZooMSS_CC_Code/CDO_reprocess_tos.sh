@@ -7,7 +7,10 @@ indir="/Users/jason/Nextcloud/MME1Data/ZooMSS_Climate_Change/raw/tos/"
 outdir="/Users/jason/Nextcloud/MME1Data/ZooMSS_Climate_Change/regrid/tos/"
 
 # Declare an array of string with type
-declare -a ModelArray=("CESM2" "GFDL-ESM4" "IPSL-CM6A-LR" "MPI-ESM1" "UKESM1-0-LL")
+# declare -a ModelArray=("CESM2" "GFDL-ESM4" "IPSL-CM6A-LR" "MPI-ESM1" "UKESM1-0-LL")
+# declare -a ExpArray=("historical" "ssp126" "ssp370" "ssp585")
+
+declare -a ModelArray=("IPSL-CM6A-LR")
 declare -a ExpArray=("historical" "ssp126" "ssp370" "ssp585")
 
 # Iterate the string array using for loop
@@ -25,13 +28,16 @@ for m in ${ModelArray[@]}; do
 			cdo -sinfov $curr_file # Print the current details of the file
 
 			out_name1="tempfile_tos.nc"
-			cdo -remapbil,global_1 $curr_file $out_name1 # Remap to 1 degree global on the half-degree
+			cdo -L -remapbil,global_1 -selyear,1950/2100 -selname,tos $curr_file $out_name1 # Remap to 1 degree global on the half-degree
 
 			annual_name=${curr_file/_gn_/_onedeg_} # Replace gn or gr with onedeg in filename
 			annual_name=${annual_name/_gr_/_onedeg_}
 			annual_name=${annual_name/_Omon_/_Oyr_} # Replace Omon with Oyr to indicate annual average
 			annual_name=${annual_name/raw/regrid} # change directory
-			cdo yearmean $out_name1 $annual_name
+			cdo -yearmean $out_name1 $annual_name
+
+			#Clean up
+			rm $out_name1
 		done
 		
 		merged_name=${annual_name::${#annual_name}-16} # Remove the dates
@@ -41,6 +47,3 @@ for m in ${ModelArray[@]}; do
 
 	done
 done
-
-#Clean up
-rm $out_name1

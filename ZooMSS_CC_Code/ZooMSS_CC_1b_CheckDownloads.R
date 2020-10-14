@@ -91,13 +91,12 @@ ggsave("Figures/SSTChl_Distinct.pdf")
 
 
 # Now save environmental data space
-
-
-
 enviro_data <- ds %>%
   mutate(Chl = 10^Chl_log10) %>%
   dplyr::select(c(SST, Chl)) %>%
   arrange(desc(Chl), desc(SST)) %>%
+  filter(is.na(Chl)==FALSE) %>%
+  filter(is.na(SST)==FALSE) %>%
   rename(chlo = Chl, sst = SST)
 
 

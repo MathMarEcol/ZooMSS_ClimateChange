@@ -2,109 +2,175 @@
 # Jason Everett (UQ)
 # 30th October 2020
 
-library(tidyverse)
 library(tidync)
 library(raster)
 library(sf)
+library(rnaturalearth)
+library(patchwork)
+library(tidyverse)
 
 base_dir <- "/Users/jason/Nextcloud/MME1Data/ZooMSS_Climate_Change/merged/"
 
 ModelArray <- c("CESM2", "GFDL-ESM4", "IPSL-CM6A-LR",
                 "MPI-ESM1-2-HR", "UKESM1-0-LL")
+
+ModelArray2 <- c("CESM2", "GFDL-ESM4", "IPSL-CM6A-LR",
+                "MPI-ESM1-2-LR", "UKESM1-0-LL")
+
 ExpArray <- c("historical")
+chl_conv <- c(1e6, 1e6, 1e3, 1e6, 1e6)
 
+latlonCRS <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+robCRS <- "+proj=robin +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"
 
-# for (m in 1:length(ModelArray)){
-#   for (e in 1:length(ExpArray)){
+world <- ne_countries(scale = "medium", returnclass = "sf")
+world_sf <- st_transform(world, crs = st_crs(robCRS)) # Convert to Mollweide
 
-m <- 1
-e <- 1
+theme_opts <- list(theme(panel.grid.minor = element_blank(),
+                         panel.grid.major = element_line(colour = "grey50", size = 0.2),
+                         panel.background = element_rect(fill = "transparent", colour = NA),
+                         panel.border = element_blank(),
+                         plot.background = element_rect(fill = "transparent", colour = NA),
+                         plot.title = element_text(hjust = 0.5),
+                         plot.margin = unit(c(0,0,0,0), "mm"),
+                         axis.line = element_blank(),
+                         axis.text.x = element_blank(),
+                         axis.text.y = element_blank(),
+                         axis.ticks = element_blank(),
+                         axis.title.x = element_blank(),
+                         # axis.title.y = element_blank(),
+                         # legend.title = element_text(size = 6),
+                         # legend.text = element_text(size = 6),
+                         legend.position = "right",
+                         # legend.direction = "horizontal",
+                         legend.background = element_rect(fill = "transparent", colour = NA),
+                         legend.key.height = unit(9, "mm"),
+                         legend.key.width = unit(4, "mm")
+                         # legend.position = c(0.5, -0.05),
+))
 
-ftos <- list.files(paste0(base_dir, "tos"), pattern = paste0(ModelArray[m],"_",ExpArray[e]), full.names = TRUE)
-    fchl <- list.files(paste0(base_dir, "chl"), pattern = paste0(ModelArray[m],"_",ExpArray[e]), full.names = TRUE)
+cnt = 0
+myplots = list()
+for (m in 1:length(ModelArray)){
+  for (e in 1:length(ExpArray)){
 
+    cnt = cnt + 1
+    ftos <- list.files(paste0(base_dir, "tos"), pattern = paste0(ModelArray[m],"_",ExpArray[e]), full.names = TRUE)
     ttos <- stack(ftos)
-    ttos <- mean(ttos)
+    ttos <- mean(ttos[[(length(names(ttos))-9):length(names(ttos))]])
+    ttos_sf <- st_as_sf(rasterToPolygons(ttos, na.rm = FALSE))
+    ttos_sf <- st_transform(ttos_sf, crs = st_crs(robCRS)) # Convert to Robinson Projection
+    if (m == 1){
+      ttos_sf_all <- ttos_sf %>%
+        rename(!!ModelArray[m] := layer)
 
-    tchl <- stack(fchl)
-    tchl <- mean(log10(tchl))
-    tchl_sf <- st_as_sf(tchl)
-
-
-    tchl <- as.data.frame(stack(fchl), xy = TRUE, na.rm = FALSE) %>%
-      pivot_longer(cols = contains("X", ignore.case = FALSE), names_to = "Date", values_to = "Chl") %>%
-      dplyr::select(Chl)
-
-    temp <- bind_cols(ttos, tchl) %>%
-      add_column(Model = ModelArray[m],
-                 Experiment = ExpArray[e]) %>%
-      mutate(SST = round(SST, digits = 1),
-             Chl = case_when(Model=="IPSL-CM6A-LR" ~ Chl * 1e3, # Convert to mg m-3
-                             Model!="IPSL-CM6A-LR" ~ Chl * 1e6), # Convert to mg m-3
-             Chl_log10 = log10(Chl),
-             Chl_log10 = round(Chl_log10, digits = 2))
-    # %>%
-    #   distinct(SST, Chl_log10, .keep_all = TRUE)
-
-    if (m == 1 & e == 1){
-      df <- temp
-    } else {
-      df <- bind_rows(df, temp)
-      # %>%
-      #   distinct(SST, Chl_log10, .keep_all = TRUE) # Only keep saving the
+    }else{
+      ttos_sf_all <- ttos_sf_all %>%
+        mutate(!!str_replace(ModelArray[m],'-','_') := ttos_sf$layer)
     }
-    rm(temp, ttos, tchl)
 
 
-    # }
-# }
+    myplots[[cnt]] <- ggplot() +
+      geom_sf(data = ttos_sf, aes(fill = layer), colour = NA) +
+      geom_sf(data = world_sf, size = 0.05, fill = "grey20") +
+      scale_fill_gradientn(limits = c(-2, 32),
+                           colours = rev(rainbow(5)),
+                           na.value = "grey50",
+                           oob = scales::squish,
+                           guide = guide_colourbar(title = "SST (°C)",
+                                                   title.position = "right",
+                                                   title.hjust = 0.5,
+                                                   title.theme = element_text(angle = 270, size = 10))) +
+      theme_opts +
+      scale_alpha(range = c(-0, 0.5)) +
+      scale_x_continuous(expand = c(0, 0)) +
+      scale_y_continuous(expand = c(0, 0)) +
+      labs(y = ModelArray[m]) +
+      (if(m==1){ggtitle(expression("Sea Surface Temperature (2005-2014)"))})
 
 
-df <- df %>%
-  rename("Lon" = x, "Lat" = y)
+    cnt = cnt + 1
+    fchl <- list.files(paste0(base_dir, "chl"), pattern = paste0(ModelArray[m],"_",ExpArray[e]), full.names = TRUE)
+    tchl <- stack(fchl)
+    tchl <- tchl[[(length(names(tchl))-9):length(names(tchl))]]
+    tchl <- mean(log10(tchl*chl_conv[m]))
+    tchl_sf <- st_as_sf(rasterToPolygons(tchl, na.rm = FALSE))
+    tchl_sf <- st_transform(tchl_sf, crs = st_crs(robCRS)) # Convert to Robinson Projection
 
-## Do the plotting for all the data
+    if (m == 1){
+      tchl_sf_all <- tchl_sf %>%
+        rename(!!ModelArray[m] := layer)
+
+    }else{
+      tchl_sf_all <- tchl_sf_all %>%
+        mutate(!!str_replace(ModelArray[m],'-','_') := tchl_sf$layer)
+    }
+
+    myplots[[cnt]] <- ggplot() +
+      geom_sf(data = tchl_sf, aes(fill = layer), colour = NA) +
+      geom_sf(data = world_sf, size = 0.05, fill = "grey20") +
+      scale_fill_gradientn(limits = c(-1.5, 0.5),
+                           # low = "blue",
+                           # high = "red",
+                           colours = rev(rainbow(5)),
+                           na.value = "grey50",
+                           # aesthetics = "fill",
+                           oob = scales::squish,
+                           guide = guide_colourbar(title = expression(paste("log"[10], "Chl. ",italic(a)," (mg m"^-3, ")")),
+                                                   title.position = "right",
+                                                   title.hjust = 0.5,
+                                                   title.theme = element_text(angle = 270, size = 10))) +
+      theme_opts +
+      theme(axis.title.y = element_blank()) +
+      scale_alpha(range = c(-0, 0.5)) +
+      scale_x_continuous(expand = c(0, 0)) +
+      scale_y_continuous(expand = c(0, 0)) +
+      (if(m==1){ggtitle(expression(paste("Chlorophyll ",italic(a)," (2005-2014)")))})
+
+    cnt = cnt + 1
+    fnpp <- list.files(paste0(base_dir, "npp"), pattern = paste0(ModelArray2[m],"*"), full.names = TRUE)
+    tnpp <- stack(fnpp)
+    tnpp <- tnpp[[(length(names(tnpp))-9):length(names(tnpp))]]
+    tnpp <- mean(log10(tnpp * 86400))
+    tnpp_sf <- st_as_sf(rasterToPolygons(tnpp, na.rm = FALSE))
+    tnpp_sf <- st_transform(tnpp_sf, crs = st_crs(robCRS)) # Convert to Robinson Projection
+
+    if (m == 1){
+      tnpp_sf_all <- tnpp_sf %>%
+        rename(!!ModelArray[m] := layer)
+    }else{
+      tnpp_sf_all <- tnpp_sf_all %>%
+        mutate(!!str_replace(ModelArray[m],'-','_') := tnpp_sf$layer)
+    }
+
+    myplots[[cnt]] <-
+      ggplot() +
+      geom_sf(data = tnpp_sf, aes(fill = layer), colour = NA) +
+      geom_sf(data = world_sf, size = 0.05, fill = "grey20") +
+      scale_fill_gradientn(limits = c(-4.5, -2.5),
+                           # low = "blue",
+                           # high = "red",
+                           colours = rev(rainbow(5)),
+                           na.value = "grey50",
+                           # aesthetics = "fill",
+                           oob = scales::squish,
+                           guide = guide_colourbar(title = expression(paste("log"[10], "NPP (mol m"^-3," d"^-1, ")")),
+                                                   title.position = "right",
+                                                   title.hjust = 0.5,
+                                                   title.theme = element_text(angle = 270, size = 10))) +
+      theme_opts +
+      theme(axis.title.y = element_blank()) +
+      scale_alpha(range = c(-0, 0.5)) +
+      scale_x_continuous(expand = c(0, 0)) +
+      scale_y_continuous(expand = c(0, 0)) +
+      (if(m==1){ggtitle("Net Primary Production (2005-2014)")})
+
+  }
+}
+
 
 graphics.off()
-x11(width = 6, height = 6)
-ggplot(data = df, mapping = aes(x = SST, y = Chl_log10)) +
-  geom_hex() +
-  scale_fill_continuous(type = "viridis", trans = "log10") +
-  theme_bw()
-ggsave("Figures/SSTChl_All.pdf")
-
-graphics.off()
-x11(width = 10, height = 6)
-ggplot(data = df, mapping = aes(x = SST, y = Chl_log10)) +
-  geom_hex() +
-  scale_fill_continuous(type = "viridis", trans = "log10") +
-  theme_bw() +
-  facet_wrap(facets = "Model", scales = "fixed")
-ggsave("Figures/SSTChl_ModelFacet.pdf")
-
-
-## Now check the distinct rows
-ds <- df %>%
-  distinct(SST, Chl_log10, .keep_all = TRUE)
-
-graphics.off()
-x11(width = 6, height = 6)
-ggplot(data = ds, mapping = aes(x = SST, y = Chl_log10)) +
-  geom_point() +
-  # scale_fill_continuous(type = "viridis", trans = "log10") +
-  theme_bw()
-ggsave("Figures/SSTChl_Distinct.pdf")
-
-
-# Now save environmental data space
-enviro_data <- ds %>%
-  mutate(Chl = 10^Chl_log10) %>%
-  dplyr::select(c(SST, Chl)) %>%
-  arrange(desc(Chl), desc(SST)) %>%
-  filter(is.na(Chl)==FALSE) %>%
-  filter(is.na(SST)==FALSE) %>%
-  rename(chlo = Chl, sst = SST)
-
-saveRDS(enviro_data, "~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/enviro_CMIP_Matrix.RDS")
-
+x11(height = 10, width = 12)
+wrap_plots(myplots, guides = "collect") + plot_layout(ncol = 3) + plot_annotation(tag_levels = "A", tag_suffix = ")")
+ggsave("Figures/ESM_Output.png", dpi = 500, bg = "transparent")
 

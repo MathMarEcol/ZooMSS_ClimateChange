@@ -270,3 +270,45 @@ base_url <- ""
 out_dir <- "/Users/jason/Nextcloud/MME1Data/ZooMSS_Climate_Change/raw/chl/"
 
 fDownloadFiles(files, base_url, out_dir)
+
+
+
+
+
+
+
+# Then do NPP
+files = c(
+  # "http://esgf-data.ucar.edu/thredds/fileServer/esg_dataroot/CMIP6/CMIP/NCAR/CESM2/historical/r4i1p1f1/Omon/pp/gn/v20190308/pp_Omon_CESM2_historical_r4i1p1f1_gn_185001-201412.nc",
+  # "http://esgf-data3.ceda.ac.uk/thredds/fileServer/esg_cmip6/CMIP6/CMIP/MOHC/UKESM1-0-LL/historical/r1i1p1f2/Omon/pp/gn/v20200507/pp_Omon_UKESM1-0-LL_historical_r1i1p1f2_gn_185001-189912.nc",
+  # "http://esgf-data3.ceda.ac.uk/thredds/fileServer/esg_cmip6/CMIP6/CMIP/MOHC/UKESM1-0-LL/historical/r1i1p1f2/Omon/pp/gn/v20200507/pp_Omon_UKESM1-0-LL_historical_r1i1p1f2_gn_190001-194912.nc",
+  # "http://esgf-data3.ceda.ac.uk/thredds/fileServer/esg_cmip6/CMIP6/CMIP/MOHC/UKESM1-0-LL/historical/r1i1p1f2/Omon/pp/gn/v20200507/pp_Omon_UKESM1-0-LL_historical_r1i1p1f2_gn_195001-199912.nc",
+  # "http://esgf-data3.ceda.ac.uk/thredds/fileServer/esg_cmip6/CMIP6/CMIP/MOHC/UKESM1-0-LL/historical/r1i1p1f2/Omon/pp/gn/v20200507/pp_Omon_UKESM1-0-LL_historical_r1i1p1f2_gn_200001-201412.nc",
+  # "http://vesg.ipsl.upmc.fr/thredds/fileServer/cmip6/CMIP/IPSL/IPSL-CM6A-LR/historical/r1i1p1f1/Omon/pp/gn/v20180803/pp_Omon_IPSL-CM6A-LR_historical_r1i1p1f1_gn_185001-194912.nc",
+  # "http://vesg.ipsl.upmc.fr/thredds/fileServer/cmip6/CMIP/IPSL/IPSL-CM6A-LR/historical/r1i1p1f1/Omon/pp/gn/v20180803/pp_Omon_IPSL-CM6A-LR_historical_r1i1p1f1_gn_195001-201412.nc",
+  # "http://esgf3.dkrz.de/thredds/fileServer/cmip6/CMIP/MPI-M/MPI-ESM1-2-LR/historical/r1i1p1f1/Omon/pp/gn/v20190710/pp_Omon_MPI-ESM1-2-LR_historical_r1i1p1f1_gn_185001-186912.nc",
+  # "http://esgf3.dkrz.de/thredds/fileServer/cmip6/CMIP/MPI-M/MPI-ESM1-2-LR/historical/r1i1p1f1/Omon/pp/gn/v20190710/pp_Omon_MPI-ESM1-2-LR_historical_r1i1p1f1_gn_187001-188912.nc",
+  # "http://esgf3.dkrz.de/thredds/fileServer/cmip6/CMIP/MPI-M/MPI-ESM1-2-LR/historical/r1i1p1f1/Omon/pp/gn/v20190710/pp_Omon_MPI-ESM1-2-LR_historical_r1i1p1f1_gn_189001-190912.nc",
+  # "http://esgf3.dkrz.de/thredds/fileServer/cmip6/CMIP/MPI-M/MPI-ESM1-2-LR/historical/r1i1p1f1/Omon/pp/gn/v20190710/pp_Omon_MPI-ESM1-2-LR_historical_r1i1p1f1_gn_191001-192912.nc",
+  # "http://esgf3.dkrz.de/thredds/fileServer/cmip6/CMIP/MPI-M/MPI-ESM1-2-LR/historical/r1i1p1f1/Omon/pp/gn/v20190710/pp_Omon_MPI-ESM1-2-LR_historical_r1i1p1f1_gn_193001-194912.nc",
+  # "http://esgf3.dkrz.de/thredds/fileServer/cmip6/CMIP/MPI-M/MPI-ESM1-2-LR/historical/r1i1p1f1/Omon/pp/gn/v20190710/pp_Omon_MPI-ESM1-2-LR_historical_r1i1p1f1_gn_195001-196912.nc",
+  # "http://esgf3.dkrz.de/thredds/fileServer/cmip6/CMIP/MPI-M/MPI-ESM1-2-LR/historical/r1i1p1f1/Omon/pp/gn/v20190710/pp_Omon_MPI-ESM1-2-LR_historical_r1i1p1f1_gn_197001-198912.nc",
+  # "http://esgf3.dkrz.de/thredds/fileServer/cmip6/CMIP/MPI-M/MPI-ESM1-2-LR/historical/r1i1p1f1/Omon/pp/gn/v20190710/pp_Omon_MPI-ESM1-2-LR_historical_r1i1p1f1_gn_199001-200912.nc",
+  # "http://esgf3.dkrz.de/thredds/fileServer/cmip6/CMIP/MPI-M/MPI-ESM1-2-LR/historical/r1i1p1f1/Omon/pp/gn/v20190710/pp_Omon_MPI-ESM1-2-LR_historical_r1i1p1f1_gn_201001-201412.nc",
+  # "http://esgdata.gfdl.noaa.gov/thredds/fileServer/gfdl_dataroot4/CMIP/NOAA-GFDL/GFDL-ESM4/historical/r1i1p1f1/Omon/pp/gr/v20190726/pp_Omon_GFDL-ESM4_historical_r1i1p1f1_gr_185001-186912.nc",
+  # "http://esgdata.gfdl.noaa.gov/thredds/fileServer/gfdl_dataroot4/CMIP/NOAA-GFDL/GFDL-ESM4/historical/r1i1p1f1/Omon/pp/gr/v20190726/pp_Omon_GFDL-ESM4_historical_r1i1p1f1_gr_187001-188912.nc",
+  # "http://esgdata.gfdl.noaa.gov/thredds/fileServer/gfdl_dataroot4/CMIP/NOAA-GFDL/GFDL-ESM4/historical/r1i1p1f1/Omon/pp/gr/v20190726/pp_Omon_GFDL-ESM4_historical_r1i1p1f1_gr_189001-190912.nc",
+  # "http://esgdata.gfdl.noaa.gov/thredds/fileServer/gfdl_dataroot4/CMIP/NOAA-GFDL/GFDL-ESM4/historical/r1i1p1f1/Omon/pp/gr/v20190726/pp_Omon_GFDL-ESM4_historical_r1i1p1f1_gr_191001-192912.nc",
+  # "http://esgdata.gfdl.noaa.gov/thredds/fileServer/gfdl_dataroot4/CMIP/NOAA-GFDL/GFDL-ESM4/historical/r1i1p1f1/Omon/pp/gr/v20190726/pp_Omon_GFDL-ESM4_historical_r1i1p1f1_gr_193001-194912.nc",
+  # "http://esgdata.gfdl.noaa.gov/thredds/fileServer/gfdl_dataroot4/CMIP/NOAA-GFDL/GFDL-ESM4/historical/r1i1p1f1/Omon/pp/gr/v20190726/pp_Omon_GFDL-ESM4_historical_r1i1p1f1_gr_195001-196912.nc",
+  "http://esgdata.gfdl.noaa.gov/thredds/fileServer/gfdl_dataroot4/CMIP/NOAA-GFDL/GFDL-ESM4/historical/r1i1p1f1/Omon/pp/gr/v20190726/pp_Omon_GFDL-ESM4_historical_r1i1p1f1_gr_197001-198912.nc",
+  "http://esgdata.gfdl.noaa.gov/thredds/fileServer/gfdl_dataroot4/CMIP/NOAA-GFDL/GFDL-ESM4/historical/r1i1p1f1/Omon/pp/gr/v20190726/pp_Omon_GFDL-ESM4_historical_r1i1p1f1_gr_199001-200912.nc",
+  "http://esgdata.gfdl.noaa.gov/thredds/fileServer/gfdl_dataroot4/CMIP/NOAA-GFDL/GFDL-ESM4/historical/r1i1p1f1/Omon/pp/gr/v20190726/pp_Omon_GFDL-ESM4_historical_r1i1p1f1_gr_201001-201412.nc"
+)
+
+base_url <- ""
+out_dir <- "/Users/jason/Nextcloud/MME1Data/ZooMSS_Climate_Change/raw/npp/"
+
+fDownloadFiles(files, base_url, out_dir)
+
+

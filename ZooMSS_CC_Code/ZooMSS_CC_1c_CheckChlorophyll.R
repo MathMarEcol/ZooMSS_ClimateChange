@@ -166,7 +166,7 @@ for (m in 1:length(ModelArray)){
       scale_x_continuous(expand = c(0, 0)) +
       scale_y_continuous(expand = c(0, 0)) +
       (if(m==1){ggtitle("Net Primary Production (2005-2014)")}) +
-      annotate("text", x = -2e6, y = -6e6, label = paste0("Mean = ", round(mean(10^tnpp_sf$layer, na.rm = TRUE),4)), colour = "black")
+      annotate("text", x = -2e6, y = -6e6, label = paste0("Mean = ", format(round(mean(10^tnpp_sf$layer, na.rm = TRUE),4)), scientific = FALSE), colour = "black")
 
     cnt = cnt + 1
     scat <- tibble(Chl = tchl_sf$layer, NPP = tnpp_sf$layer)

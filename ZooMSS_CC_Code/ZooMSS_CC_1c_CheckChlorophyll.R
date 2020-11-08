@@ -233,11 +233,6 @@ myplots[[cnt + 2]] <- ggplot() +
 graphics.off()
 x11(height = 14, width = 15)
 wrap_plots(myplots, guides = "collect") + plot_layout(ncol = 4, widths = c(1, 1, 1, 1)) + plot_annotation(tag_levels = "A", tag_suffix = ")")
-ggsave("Figures/ESM_Output.png", dpi = 400)
+ggsave("Figures/ESM_Output.png", dpi = 300)
 ggsave("Figures/ESM_Output.pdf")
-
-graphics.off()
-x11(height = 7, width = 7.5)
-wrap_plots(myplots, guides = "collect") + plot_layout(ncol = 4, widths = c(1, 1, 1, 1)) + plot_annotation(tag_levels = "A", tag_suffix = ")")
-ggsave("Figures/ESM_Output.png", dpi = 400)
 

@@ -15,7 +15,7 @@ ModelArray <- c("CESM2", "GFDL-ESM4", "IPSL-CM6A-LR",
                 "MPI-ESM1-2-HR", "UKESM1-0-LL")
 
 ModelArray2 <- c("CESM2", "GFDL-ESM4", "IPSL-CM6A-LR",
-                "MPI-ESM1-2-LR", "UKESM1-0-LL")
+                 "MPI-ESM1-2-LR", "UKESM1-0-LL")
 
 ExpArray <- c("historical")
 chl_conv <- c(1e6, 1e6, 1e3, 1e6, 1e6)
@@ -86,7 +86,8 @@ for (m in 1:length(ModelArray)){
       scale_x_continuous(expand = c(0, 0)) +
       scale_y_continuous(expand = c(0, 0)) +
       labs(y = ModelArray[m]) +
-      (if(m==1){ggtitle(expression("Sea Surface Temperature (2005-2014)"))})
+      (if(m==1){ggtitle(expression("Sea Surface Temperature (2005-2014)"))}) +
+      annotate("text", x = -1e6, y = -6e6, label = paste0("Mean = ", round(mean(ttos_sf$layer, na.rm = TRUE), 2)), colour = "black")
 
 
     cnt = cnt + 1
@@ -97,6 +98,7 @@ for (m in 1:length(ModelArray)){
     tchl_sf <- st_as_sf(rasterToPolygons(tchl, na.rm = FALSE))
     tchl_sf <- st_transform(tchl_sf, crs = st_crs(robCRS)) # Convert to Robinson Projection
 
+    print(10^max(tchl_sf$layer, na.rm = TRUE))
     if (m == 1){
       tchl_sf_all <- tchl_sf %>%
         rename(!!ModelArray[m] := layer)
@@ -125,7 +127,8 @@ for (m in 1:length(ModelArray)){
       scale_alpha(range = c(-0, 0.5)) +
       scale_x_continuous(expand = c(0, 0)) +
       scale_y_continuous(expand = c(0, 0)) +
-      (if(m==1){ggtitle(expression(paste("Chlorophyll ",italic(a)," (2005-2014)")))})
+      (if(m==1){ggtitle(expression(paste("Chlorophyll ",italic(a)," (2005-2014)")))}) +
+      annotate("text", x = -1e6, y = -6e6, label = paste0("Mean = ", round(mean(10^tchl_sf$layer, na.rm = TRUE),2)), colour = "black")
 
     cnt = cnt + 1
     fnpp <- list.files(paste0(base_dir, "npp"), pattern = paste0(ModelArray2[m],"*"), full.names = TRUE)
@@ -143,8 +146,7 @@ for (m in 1:length(ModelArray)){
         mutate(!!str_replace(ModelArray[m],'-','_') := tnpp_sf$layer)
     }
 
-    myplots[[cnt]] <-
-      ggplot() +
+    myplots[[cnt]] <- ggplot() +
       geom_sf(data = tnpp_sf, aes(fill = layer), colour = NA) +
       geom_sf(data = world_sf, size = 0.05, fill = "grey20") +
       scale_fill_gradientn(limits = c(-4.5, -2.5),
@@ -163,14 +165,79 @@ for (m in 1:length(ModelArray)){
       scale_alpha(range = c(-0, 0.5)) +
       scale_x_continuous(expand = c(0, 0)) +
       scale_y_continuous(expand = c(0, 0)) +
-      (if(m==1){ggtitle("Net Primary Production (2005-2014)")})
+      (if(m==1){ggtitle("Net Primary Production (2005-2014)")}) +
+      annotate("text", x = -2e6, y = -6e6, label = paste0("Mean = ", round(mean(10^tnpp_sf$layer, na.rm = TRUE),4)), colour = "black")
 
+    cnt = cnt + 1
+    scat <- tibble(Chl = tchl_sf$layer, NPP = tnpp_sf$layer)
+
+    myplots[[cnt]] <- ggplot(data = scat, aes(x = Chl, y = NPP)) +
+      geom_point() +
+      scale_x_continuous(expand = c(0, 0), limits = c(-3, 1.5)) +
+      scale_y_continuous(expand = c(0, 0), limits = c(-6, -1)) +
+      theme(aspect.ratio=1) +
+      labs(x = expression(paste("log"[10], "Chl. ",italic(a)," (mg m"^-3, ")")),
+           y = expression(paste("log"[10], "NPP (mol m"^-3," d"^-1, ")"))) +
+      (if(m==1){ggtitle("Chl v NPP (2005-2014)")})
   }
 }
 
 
+source("ZooMSS_CC_1d_AddSatellite.R")
+
+
+myplots[[cnt + 1]] <- ggplot() +
+  geom_sf(data = msst_sf, aes(fill = layer), colour = NA) +
+  geom_sf(data = world_sf, size = 0.05, fill = "grey20") +
+  scale_fill_gradientn(limits = c(-2, 32),
+                       colours = rev(rainbow(5)),
+                       na.value = "grey50",
+                       oob = scales::squish,
+                       guide = guide_colourbar(title = "SST (°C)",
+                                               title.position = "right",
+                                               title.hjust = 0.5,
+                                               title.theme = element_text(angle = 270, size = 10))) +
+  theme_opts +
+  scale_alpha(range = c(-0, 0.5)) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(y = "Satellite") +
+  annotate("text", x = -1e6, y = -6e6, label = paste0("Mean = ", round(mean(msst_sf$layer, na.rm = TRUE), 2)), colour = "black")
+
+
+
+
+myplots[[cnt + 2]] <- ggplot() +
+  geom_sf(data = mchl_sf, aes(fill = log10(layer)), colour = NA) +
+  geom_sf(data = world_sf, size = 0.05, fill = "grey20") +
+  scale_fill_gradientn(limits = c(-1.5, 0.5),
+                       # low = "blue",
+                       # high = "red",
+                       colours = rev(rainbow(5)),
+                       na.value = "grey50",
+                       # aesthetics = "fill",
+                       oob = scales::squish,
+                       guide = guide_colourbar(title = expression(paste("log"[10], "Chl. ",italic(a)," (mg m"^-3, ")")),
+                                               title.position = "right",
+                                               title.hjust = 0.5,
+                                               title.theme = element_text(angle = 270, size = 10))) +
+  theme_opts +
+  theme(axis.title.y = element_blank()) +
+  scale_alpha(range = c(-0, 0.5)) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  annotate("text", x = -2e6, y = -6e6, label = paste0("Mean = ", round(mean(mchl_sf$layer, na.rm = TRUE),2)), colour = "black")
+
+
+
 graphics.off()
-x11(height = 10, width = 12)
-wrap_plots(myplots, guides = "collect") + plot_layout(ncol = 3) + plot_annotation(tag_levels = "A", tag_suffix = ")")
-ggsave("Figures/ESM_Output.png", dpi = 500, bg = "transparent")
+x11(height = 14, width = 15)
+wrap_plots(myplots, guides = "collect") + plot_layout(ncol = 4, widths = c(1, 1, 1, 1)) + plot_annotation(tag_levels = "A", tag_suffix = ")")
+ggsave("Figures/ESM_Output.png", dpi = 400)
+ggsave("Figures/ESM_Output.pdf")
+
+graphics.off()
+x11(height = 7, width = 7.5)
+wrap_plots(myplots, guides = "collect") + plot_layout(ncol = 4, widths = c(1, 1, 1, 1)) + plot_annotation(tag_levels = "A", tag_suffix = ")")
+ggsave("Figures/ESM_Output.png", dpi = 400)
 

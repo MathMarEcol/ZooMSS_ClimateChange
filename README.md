@@ -19,8 +19,8 @@ Annual average surface chlorophyll (chlos) and surface temperature (tos) netcdfs
 Required runs
 For each dataset, we need to complete these runs:
 1)	The standard model run, with all groups included – COMPLETED
-2)	A run with salps and larvaceans removed (no filter feeders)
-3)	A run with carnivorous copepods, chaetognaths and jellyfish removed (no carnivores)
-4)	A run with omnivorous copepods and euphausiids removed (no omnivores)
-5)	A run with one zooplankton group
+2)	A run with salps and larvaceans removed (no filter feeders) - COMPLETED
+3)	A run with carnivorous copepods, chaetognaths and jellyfish removed (no carnivores) - COMPLETED
+4)	A run with omnivorous copepods and euphausiids removed (no omnivores) - COMPLETED
+5)	A run with one zooplankton group - COMPLETED
 6)	A run with three zooplankton groups.

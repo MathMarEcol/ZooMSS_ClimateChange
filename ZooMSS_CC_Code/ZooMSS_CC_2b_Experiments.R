@@ -9,21 +9,21 @@ runs <- c("Control", "NoCarnivores", "NoOmnivores", "NoFilterFeeders", "OneZoo")
 
 #### Load ZooMSS Matrix Data ####
 enviro_data <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/enviro_CMIP_Matrix_wPhyto.RDS")
-mdl <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/Control/Output/model_Control.RDS")
 nc <- read_rds(paste0(base_dir, "ClimateChange_Compiled.rds"))
 
-w <- mdl$param$w
+models <- str_extract(unique(nc$Model), "[^-]+") # Extract model names
 
 minb <- 1
 maxb <- 158 # Max weight of 100 kg.
 
-for (r in 1:length(runs)){
+for (r in 4:length(runs)){
 
-  out <- read_rds(paste0("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/",runs[r],"/Output/res_",runs[r],".RDS"))
+  zoo <- read_rds(paste0("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/",runs[r],"/Output/res_",runs[r],".RDS"))
+  mdl <- read_rds(paste0("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/",runs[r],"/Output/model_",runs[r],".RDS"))
 
-  Bio <- fZooMSS_SpeciesBiomass(fZooMSS_ExtractSizeRange(out, minb, maxb), w) # Sum across all species, keeping size Bins
+  Bio <- fZooMSS_SpeciesBiomass(fZooMSS_ExtractSizeRange(zoo, minb, maxb), mdl$param$w)
 
-  Bio_df <- as_tibble(matrix(unlist(Bio), nrow=length(Bio), byrow=T)) %>%
+  Bio_df <- as_tibble(matrix(unlist(Bio), nrow=length(Bio), byrow=T), .name_repair = "unique") %>%
     rename_with(~mdl$param$Groups$Species) %>%
     mutate(cellID = 1:n()) %>% # Create a cellID
     left_join(dplyr::select(enviro_data, cellID, chlo, sst), by = "cellID") %>%
@@ -35,21 +35,18 @@ for (r in 1:length(runs)){
              k = 1, verbose = FALSE)
 
   nc2 <- nc %>%
-    mutate(cellID = out$knnIndexDist[,1],
-           Flagellates = Bio_df$Flagellates[cellID],
-           Ciliates = Bio_df$Ciliates[cellID],
-           Larvaceans = Bio_df$Larvaceans[cellID],
-           OmniCopepods = Bio_df$OmniCopepods[cellID],
-           CarnCopepods = Bio_df$CarnCopepods[cellID],
-           Euphausiids = Bio_df$Euphausiids[cellID],
-           Chaetognaths = Bio_df$Chaetognaths[cellID],
-           Salps = Bio_df$Salps[cellID],
-           Jellyfish = Bio_df$Jellyfish[cellID],
-           Fish_Small = Bio_df$Fish_Small[cellID],
-           Fish_Med = Bio_df$Fish_Med[cellID],
-           Fish_Large= Bio_df$Fish_Large[cellID])
+    mutate(cellID = out$knnIndexDist[,1]) %>%
+    left_join(select(Bio_df, cellID, Flagellates:Fish_Large), by = "cellID")
 
-  write_rds(nc2, paste0(base_dir, "ClimateChange_Compiled_withZooMSS_",runs[r],".rds"))
+  for (m in 1:length(models)){
+
+    nc_mdl <- nc2 %>%
+      filter(str_detect(Model, models[m]))
+
+    write_rds(nc_mdl, paste0(base_dir, "ClimateChange_Compiled_withZooMSS_",models[m],"_",runs[r],".rds"))
+    rm(nc_mdl)
+
+  }
 
   rm(nc2, Bio, Bio_df, out)
 }

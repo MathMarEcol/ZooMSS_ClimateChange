@@ -16,12 +16,12 @@ models <- str_extract(unique(nc$Model), "[^-]+") # Extract model names
 minb <- 1
 maxb <- 158 # Max weight of 100 kg.
 
-for (r in 4:length(runs)){
+for (r in 1:length(runs)){
 
   zoo <- read_rds(paste0("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/",runs[r],"/Output/res_",runs[r],".RDS"))
   mdl <- read_rds(paste0("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/",runs[r],"/Output/model_",runs[r],".RDS"))
 
-  Bio <- fZooMSS_SpeciesBiomass(fZooMSS_ExtractSizeRange(zoo, minb, maxb), mdl$param$w)
+  Bio <- fZooMSS_SpeciesBiomass(fZooMSS_ExtractSizeRange(zoo, minb, maxb), mdl$param$w[minb:maxb])
 
   Bio_df <- as_tibble(matrix(unlist(Bio), nrow=length(Bio), byrow=T), .name_repair = "unique") %>%
     rename_with(~mdl$param$Groups$Species) %>%

@@ -41,11 +41,35 @@ if (reprocess == TRUE){
 
 graphics.off()
 x11(width = 16, height = 12)
-(ggB <- ggplot(datyr, aes(x = Date, y = Fish_Total, colour = Experiment)) +
+(ggB <- ggplot(data = datyr, aes(x = Date, y = Fish_Total, colour = Experiment)) +
     geom_line() +
     theme_bw() +
     facet_grid(vars(Run), vars(Model), scales = "free_y"))
 ggsave("Figures/Fish_TotalBiomass.pdf")
+
+graphics.off()
+x11(width = 16, height = 12)
+(ggFS <- ggplot(datyr, aes(x = Date, y = Fish_Small, colour = Experiment)) +
+    geom_line() +
+    theme_bw() +
+    facet_grid(vars(Run), vars(Model), scales = "free_y"))
+ggsave("Figures/Fish_SmallBiomass.pdf")
+
+graphics.off()
+x11(width = 16, height = 12)
+(ggFL <- ggplot(datyr, aes(x = Date, y = Fish_Med, colour = Experiment)) +
+    geom_line() +
+    theme_bw() +
+    facet_grid(vars(Run), vars(Model), scales = "free_y"))
+ggsave("Figures/Fish_MedBiomass.pdf")
+
+graphics.off()
+x11(width = 16, height = 12)
+(ggFL <- ggplot(datyr, aes(x = Date, y = Fish_Large, colour = Experiment)) +
+    geom_line() +
+    theme_bw() +
+    facet_grid(vars(Run), vars(Model), scales = "free_y"))
+ggsave("Figures/Fish_LargeBiomass.pdf")
 
 
 graphics.off()

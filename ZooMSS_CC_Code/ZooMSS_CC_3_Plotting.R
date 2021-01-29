@@ -3,7 +3,7 @@ library(patchwork)
 library(lubridate)
 
 base_dir <- file.path("~","Nextcloud","MME2Work","ZooMSS_ClimateChange","")
-reprocess <- TRUE
+reprocess <- FALSE
 
 if (reprocess == TRUE){
   ## Create a summary df to hold the spatial means of all the data

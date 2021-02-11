@@ -19,9 +19,9 @@ zoo1 <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/
 
 
 # Then One Zoo for the global runs
-m2 <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200221_OneZoo_Full_UNSW/Output/model_20200221_OneZoo_Full_UNSW.RDS")
-e2 <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200221_OneZoo_Full_UNSW/envirofull_20200312.RDS")
-zoo2 <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200221_OneZoo_Full_UNSW/Output/res_20200221_OneZoo_Full_UNSW.RDS") %>%
+m2 <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20201009_OneZoo/Output/model_20201009_OneZoo.RDS")
+e2 <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20201009_OneZoo/envirofull_20200317.RDS")
+zoo2 <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20201009_OneZoo/Output/res_20201009_OneZoo.RDS") %>%
   fZooMSS_SpeciesBiomass(m2) %>%
   fZooMSS_Convert2Tibble(m2) %>%
   fZooMSS_AddEnviro(e2) %>%

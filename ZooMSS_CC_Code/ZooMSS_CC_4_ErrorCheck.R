@@ -78,19 +78,3 @@ ggplot(data = zoo_diff, aes(x = Chl_log10.x, y = Fish_diff)) +
   geom_point()
 
 
-
-
-
-Hi @ric325 @ryanheneghan @patricksykes
-
-Turns out I made a small error in one of the Single Zooplankton runs. I set one to PPMR = 100, and the other to PPMR = 1000.
-
-To refresh your memory. We have two sets of runs for OneZoo for different papers.
-1. The original global runs for 1638 cells which we are using for the High Impact Paper. This has a PPMR of 100.
-2. The Climate Change matrix runs for Ryan which had 100K odd combinations of SST and Chl. This has a PPMR of 1000.
-
-I remember talking to you all about 2) and we decided on 1000 because it "better represented the actual zooplankton PPMR". This run was completed in October. The original 1) run were done back in Feb 2020.
-
-The problem is that I hope these papers will both come out this year, and they probably should tell the same story for the same sort of experiment. You can see below, that they each give different output.
-
-

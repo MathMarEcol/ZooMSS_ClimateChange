@@ -18,6 +18,8 @@ Zoo <- read_rds(paste0("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_M
          SST = round(SST,2)) %>%
   rename(Control = Biomass)
 
+ControlOutput <- Zoo
+
 for (r in 2:length(runs)){
   mdl <- read_rds(paste0("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/",runs[r],"/Output/model_",runs[r],".RDS"))
   temp <- read_rds(paste0("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/",runs[r],"/Output/res_",runs[r],".RDS")) %>%
@@ -70,14 +72,63 @@ ggsave("Figures/Facet_MatrixBiomassChange_log10.png", dpi = 300)
 
 
 
-Zoo2 <- Zoo %>%
-  filter(Group %in% "Diff_NoOmnivores") %>%
-  # filter(Species %in% "Jellyfish") %>%
+Bio <- ControlOutput %>%
   filter(SST == 20)
 
-ggplot(data = Zoo2, aes(x = Chl_log10, y = DiffBiomass, colour = Species)) +
+ggplot(data = Bio, aes(x = Chl_log10, y = Control, colour = Species)) +
   geom_line() +
-  ylim(c(-100, 100))
+  ggtitle("Species specific Biomass")
+
+
+Bio2 <- Bio %>%
+  group_by(Chl_log10) %>%
+  summarise(Control = sum(Control))
+
+ggplot(data = Bio2, aes(x = Chl_log10, y = Control)) +
+  geom_line() +
+  ggtitle("Total Biomass")
+
+
+
+
+
+enviro <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200429_Control/envirofull_20200317.RDS")
+mdl <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200429_Control/Output/model_20200429_Control.RDS")
+Zoo <- read_rds(paste0("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200429_Control/Output/res_20200429_Control.RDS")) %>%
+  fZooMSS_SpeciesBiomass(mdl) %>%
+  fZooMSS_Convert2Tibble(mdl) %>%
+  fZooMSS_AddEnviro(enviro) %>%
+  pivot_longer(cols = Flagellates:Fish_Large, names_to = "Species", values_to = "Biomass") %>%
+  mutate(Chl_log10 = round(Chl_log10,2),
+         SST = round(SST,2)) %>%
+  rename(Control = Biomass) %>%
+  arrange(Chl) %>%
+  filter(SST >18 & SST < 22)
+
+ggplot(data = Zoo, aes(x = Chl_log10, y = Control, colour = Species)) +
+  geom_line() +
+  ggtitle("Species specific Biomass")
+
+ZooSum <- Zoo %>%
+  group_by(Chl_log10) %>%
+  summarise(Control = sum(Control))
+
+ggplot(data = ZooSum, aes(x = Chl_log10, y = Control)) +
+  geom_line() +
+  ggtitle("Total Biomass")
+
+
+
+
+
+
+
+
+
+
+
+# +
+  # ylim(c(-100, 100))
 
 
 ggplot(data = Zoo2, aes(x = Chl_log10, y = log10(Control), colour = Species)) +

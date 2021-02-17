@@ -1,5 +1,6 @@
 # There seems to be a problem with the
 source("~/GitHub/ZooMSS/fZooMSS_Xtras.R")
+source("~/GitHub/ZooMSS/fZooMSS_CalculatePhytoParam.R")
 
 library(tidyverse)
 
@@ -15,39 +16,47 @@ zoo1 <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/
   pivot_longer(cols = Flagellates:Fish_Large, names_to = "Species", values_to = "Biomass") %>%
   mutate(Chl_log10 = round(Chl_log10,2),
          SST = round(SST,2)) %>%
-  rename(BiomassPPMR1000 = Biomass)
+  rename(BiomassCMIP = Biomass)
 
 
 # Then One Zoo for the global runs
-m2 <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20201009_OneZoo/Output/model_20201009_OneZoo.RDS")
+m2 <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20210207_OneZoo/Output/model_20210207_OneZoo.RDS")
 e2 <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20201009_OneZoo/envirofull_20200317.RDS")
-zoo2 <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20201009_OneZoo/Output/res_20201009_OneZoo.RDS") %>%
+zoo2 <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20210207_OneZoo/Output/res_20210207_OneZoo.RDS") %>%
   fZooMSS_SpeciesBiomass(m2) %>%
   fZooMSS_Convert2Tibble(m2) %>%
   fZooMSS_AddEnviro(e2) %>%
   pivot_longer(cols = Flagellates:Fish_Large, names_to = "Species", values_to = "Biomass") %>%
   mutate(Chl_log10 = round(Chl_log10,2),
          SST = round(SST,2)) %>%
-  rename(BiomassPPMR100 = Biomass)
+  rename(BiomassGlobal = Biomass)
 
-zoo_join <- left_join(zoo2, zoo1, by = c("SST", "Chl_log10", "Species")) %>%
-  drop_na(BiomassPPMR1000)
+zoo1 <- zoo1 %>%
+  mutate(Chl = round(Chl, 3))
+
+zoo2 <- zoo2 %>%
+  mutate(Chl = round(Chl, 3))
+
+zoo_join <- left_join(zoo2, zoo1, by = c("SST", "Chl", "Species")) %>%
+  drop_na(BiomassCMIP) %>%
+  select(sort(tidyselect::peek_vars()))
+
 
 # Plot the biomass difference
-(gg1 <- ggplot(data = zoo_join, aes(x = log10(BiomassPPMR1000), y = log10(BiomassPPMR100))) +
+(gg1 <- ggplot(data = zoo_join, aes(x = log10(BiomassCMIP), y = log10(BiomassGlobal))) +
   geom_point() +
   facet_wrap(vars(Species), scales = "free"))
 
-(gg2 <- ggplot(data = zoo_join, aes(x = log10(BiomassPPMR1000), y = log10(BiomassPPMR100), colour = Species)) +
+(gg2 <- ggplot(data = zoo_join, aes(x = log10(BiomassCMIP), y = log10(BiomassGlobal), colour = Species)) +
     geom_point() +
     geom_abline(intercept = 0, slope = 1))
 
 
 
-(gg2 <- ggplot() +
-  geom_point(data = zoo1, aes(x = Chl_log10, y = Biomass), colour = "blue") +
+(gg3 <- ggplot() +
+  geom_point(data = zoo1, aes(x = Chl_log10, y = BiomassCMIP), colour = "blue") +
   facet_wrap(facets = vars(Species), scales = "free_y") +
-  geom_point(data = zoo2, aes(x = Chl_log10, y = Biomass), colour = "red") +
+  geom_point(data = zoo2, aes(x = Chl_log10, y = BiomassGlobal), colour = "red") +
   facet_wrap(facets = vars(Species), scales = "free_y"))
 
 

@@ -1,0 +1,350 @@
+---
+title: "Matrix Check"
+author: "Jason D. Everett"
+date: "18/02/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Plot Matrix Biomass
+```{r, message=FALSE, warning=FALSE}
+source("~/GitHub/ZooMSS/fZooMSS_Xtras.R")
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(patchwork)
+  })
+
+enviro <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/enviro_CMIP_Matrix_wPhyto.RDS")
+mdl <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/Control_OutofOrder/Output/model_Control.RDS")
+Zoo <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/Control_OutofOrder/Output/res_Control.RDS") %>%
+  fZooMSS_SpeciesBiomass(mdl) %>%
+  fZooMSS_Convert2Tibble(mdl) %>%
+  fZooMSS_AddEnviro(enviro) %>%
+  pivot_longer(cols = Flagellates:Fish_Large, names_to = "Species", values_to = "Biomass") %>%
+  mutate(Chl_log10 = round(Chl_log10,2),
+         SST = round(SST,2))
+
+ZooControl <- Zoo
+
+```
+
+```{r, out.width = '100%'}
+plot_list <- list()
+sp <- mdl$param$Groups$Species
+
+for (i in 1:length(sp)){
+  plot_list[[i]] <- Zoo %>%
+    filter(Species == sp[i]) %>%
+    ggplot(aes(x = SST, y = Chl_log10, colour = Biomass, fill = Biomass)) +
+    geom_tile() +
+    scale_fill_distiller(palette = "Spectral") +
+    scale_colour_distiller(palette = "Spectral") +
+    guides(colour = FALSE) + 
+    theme_bw() + 
+    theme(text = element_text(size = 6), legend.key.width = unit(2,"mm")) + 
+    scale_x_continuous(expand = c(0,0)) + 
+    scale_y_continuous(expand = c(0,0)) + 
+    ggtitle(sp[i])
+}
+
+wrap_plots(plot_list, ncol = 3)
+
+```
+
+There seems to be a lot of inconsistencies in the plot above. The biomass seemingly goes up and down at high frequency at points. Why?
+
+Here is a larger example.
+
+```{r, message=FALSE, warning=FALSE}
+plot_list[[4]]
+```
+
+Check what is happening with the other experiments (No Omnivores, No Carnivores, No Filter Feeders)
+```{r out.width = '100%'}
+
+enviro <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/enviro_CMIP_Matrix_wPhyto.RDS")
+
+mdl <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/NoOmnivores/Output/model_NoOmnivores.RDS")
+Zoo <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/NoOmnivores/Output/res_NoOmnivores.RDS") %>%
+  fZooMSS_SpeciesBiomass(mdl) %>%
+  fZooMSS_Convert2Tibble(mdl) %>%
+  fZooMSS_AddEnviro(enviro) %>%
+  pivot_longer(cols = Flagellates:Fish_Large, names_to = "Species", values_to = "Biomass") %>%
+  mutate(Chl_log10 = round(Chl_log10,2),
+         SST = round(SST,2))
+
+plot_list <- list()
+sp <- mdl$param$Groups$Species
+
+for (i in 1:length(sp)){
+  plot_list[[i]] <- Zoo %>%
+    filter(Species == sp[i]) %>%
+    ggplot(aes(x = SST, y = Chl_log10, colour = Biomass, fill = Biomass)) +
+    geom_tile() +
+    scale_fill_distiller(palette = "Spectral") +
+    scale_colour_distiller(palette = "Spectral") +
+    guides(colour = FALSE) + 
+    theme_bw() + 
+    theme(text = element_text(size = 6), legend.key.width = unit(2,"mm")) + 
+    scale_x_continuous(expand = c(0,0)) + 
+    scale_y_continuous(expand = c(0,0)) + 
+    ggtitle(sp[i])
+}
+
+wrap_plots(plot_list, ncol = 3)
+
+```
+
+```{r out.width = '100%'}
+
+enviro <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/enviro_CMIP_Matrix_wPhyto.RDS")
+mdl <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/NoCarnivores/Output/model_NoCarnivores.RDS")
+Zoo <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/NoCarnivores/Output/res_NoCarnivores.RDS") %>%
+  fZooMSS_SpeciesBiomass(mdl) %>%
+  fZooMSS_Convert2Tibble(mdl) %>%
+  fZooMSS_AddEnviro(enviro) %>%
+  pivot_longer(cols = Flagellates:Fish_Large, names_to = "Species", values_to = "Biomass") %>%
+  mutate(Chl_log10 = round(Chl_log10,2),
+         SST = round(SST,2))
+
+plot_list <- list()
+sp <- mdl$param$Groups$Species
+
+for (i in 1:length(sp)){
+  plot_list[[i]] <- Zoo %>%
+    filter(Species == sp[i]) %>%
+    ggplot(aes(x = SST, y = Chl_log10, colour = Biomass, fill = Biomass)) +
+    geom_tile() +
+    scale_fill_distiller(palette = "Spectral") +
+    scale_colour_distiller(palette = "Spectral") +
+    guides(colour = FALSE) + 
+    theme_bw() + 
+    theme(text = element_text(size = 6), legend.key.width = unit(2,"mm")) + 
+    scale_x_continuous(expand = c(0,0)) + 
+    scale_y_continuous(expand = c(0,0)) + 
+    ggtitle(sp[i])
+}
+
+wrap_plots(plot_list, ncol = 3)
+
+```
+
+
+
+```{r out.width = '100%'}
+
+enviro <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/enviro_CMIP_Matrix_wPhyto.RDS")
+
+mdl <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/NoFilterFeeders/Output/model_NoFilterFeeders.RDS")
+Zoo <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/NoFilterFeeders/Output/res_NoFilterFeeders.RDS") %>%
+  fZooMSS_SpeciesBiomass(mdl) %>%
+  fZooMSS_Convert2Tibble(mdl) %>%
+  fZooMSS_AddEnviro(enviro) %>%
+  pivot_longer(cols = Flagellates:Fish_Large, names_to = "Species", values_to = "Biomass") %>%
+  mutate(Chl_log10 = round(Chl_log10,2),
+         SST = round(SST,2))
+
+plot_list <- list()
+sp <- mdl$param$Groups$Species
+
+for (i in 1:length(sp)){
+  plot_list[[i]] <- Zoo %>%
+    filter(Species == sp[i]) %>%
+    ggplot(aes(x = SST, y = Chl_log10, colour = Biomass, fill = Biomass)) +
+    geom_tile() +
+    scale_fill_distiller(palette = "Spectral") +
+    scale_colour_distiller(palette = "Spectral") +
+    guides(colour = FALSE) + 
+    theme_bw() + 
+    theme(text = element_text(size = 6), legend.key.width = unit(2,"mm")) + 
+    scale_x_continuous(expand = c(0,0)) + 
+    scale_y_continuous(expand = c(0,0)) + 
+    ggtitle(sp[i])
+}
+
+wrap_plots(plot_list, ncol = 3)
+
+```
+
+
+These look ok. Lets go back to the control runs and have a look at a set chlorophyll value
+
+```{r, message=FALSE, warning=FALSE}
+
+gg1 <- ZooControl %>%
+  filter(Species == sp[4] & Chl_log10 == -1) %>%
+  ggplot(aes(x = SST, y = Biomass)) +
+  geom_line() + 
+  ggtitle(paste0(sp[4],", Chl = 0.1"))
+
+gg2 <- ZooControl %>%
+  filter(Species == sp[4] & Chl_log10 == 0) %>%
+  ggplot(aes(x = SST, y = Biomass)) +
+  geom_line() + 
+  ggtitle(paste0(sp[4],", Chl = 1"))
+
+gg3 <- ZooControl %>%
+  filter(Species == sp[4] & Chl_log10 == 1) %>%
+  ggplot(aes(x = SST, y = Biomass)) +
+  geom_line() + 
+  ggtitle(paste0(sp[4],", Chl = 10"))
+
+gg1/gg2/gg3
+
+```
+
+There is obviously a fair bit of variability in the output, but there shouldn't be. These changes should be continuous and in the same direction. I wonder if this is related to the oscillations in the time-series data and the way we are averaging the last 50 %?
+
+Lets check the averaging patterns for a single file and see how much difference it makes.
+
+```{r, message=FALSE, warning=FALSE}
+enviro_data <- data.frame(chlo = 10, sst = 20)
+
+out <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/Control_Check/RawOutput/20200917_TheMatrix_Control_000001.RDS")
+
+# Function to calculate the mean of the last pd % of the model
+fZooMSS_AveOutput2 <- function(out, pd){
+  res <- colMeans(out$model$N[(ceiling(dim(out$model$N)[1] - pd*(dim(out$model$N)[1])):dim(out$model$N)[1]),,], dims = 1)
+  res2 <- list(res) %>% 
+    fZooMSS_SpeciesBiomass(out$model) %>%
+    fZooMSS_Convert2Tibble(out$model)
+  return(res2)
+}
+
+pd <- seq(0.1,0.9, 0.05)
+for (p in 1:length(pd)){
+  if (p == 1){
+    out2 <- fZooMSS_AveOutput2(out, pd[p])
+    # out2$pd <- pd[p]
+  }
+  
+  if (p != 1){
+    out2[p,] <- fZooMSS_AveOutput2(out, pd[p])
+    # out2$pd[p] <- pd[p]
+  }
+  
+}
+
+out2$pd <- pd  
+
+out3 <- out2 %>% 
+  pivot_longer(cols = Flagellates:Fish_Large, names_to = "Species", values_to = "Biomass") 
+
+ggplot(data = out3, aes(x = pd, y = Biomass, colour = Species)) + 
+  geom_line()
+  
+```
+
+
+I don't think the problem is the oscillations and the proportion of the output that we save....
+
+Now lets check that the new run we just did, matches what it shows in the Matrix.
+
+```{r, message=FALSE, warning=FALSE}
+# New run
+enviro_data <- data.frame(chlo = 10, sst = 20)
+out_new <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/Control_Check/RawOutput/20200917_TheMatrix_Control_000001.RDS")
+Zoo_new <- list(out_new$abundances) %>% 
+  fZooMSS_SpeciesBiomass(out_new$model) %>%
+  fZooMSS_Convert2Tibble(out_new$model)
+
+
+# Find equivalent run in the data
+enviro_old <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/enviro_CMIP_Matrix_wPhyto.RDS") %>% 
+  filter(chlo == 10, sst == 20)
+out_old <- read_rds(paste0("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/Control_OutofOrder/RawOutput/20200917_TheMatrix_Control_",sprintf("%06d",enviro_old$cellID),".RDS"))
+Zoo_old <- list(out_old$abundances) %>% 
+  fZooMSS_SpeciesBiomass(out_old$model) %>%
+  fZooMSS_Convert2Tibble(out_old$model)
+
+Zoo_old
+Zoo_new
+
+```
+
+Those runs are different when they should be the same. This suggest that there was a problem with the original runs......
+
+Lets check what the matrix runs look like when I only include the ones where the cellID matches matches what is saved with the file.....
+
+```{r, message=FALSE, warning=FALSE}
+
+enviro <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/enviro_CMIP_Matrix_wPhyto.RDS")
+fil <- list.files("/Users/jason/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/Control_OutofOrder/RawOutput/", full.names = TRUE)
+enviro$chk_fileID <- NA
+enviro$chk_cellID <- NA
+enviro$chk_chlo <- NA
+enviro$chk_sst <- NA
+for (i in 1:length(fil)){
+  out <- read_rds(fil[i])
+  enviro$chk_fileID[i] = as.numeric(str_sub(fil[i], -10,-5))
+  enviro$chk_cellID[i] = out$model$param$cellID
+  enviro$chk_chlo[i] = out$model$param$chlo
+  enviro$chk_sst[i] = out$model$param$sst
+  rm(out)
+}
+
+mdl <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/Control_OutofOrder/Output/model_Control.RDS")
+Zoo <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/Control_OutofOrder/Output/res_Control.RDS") %>%
+  fZooMSS_SpeciesBiomass(mdl) %>%
+  fZooMSS_Convert2Tibble(mdl) %>%
+  fZooMSS_AddEnviro(enviro)
+
+
+Zoo2 <- Zoo  %>% 
+  filter(cellID==enviro$chk_cellID)
+
+enviro2 <- enviro %>% 
+  filter(cellID != chk_cellID)
+
+Zoo2 <- Zoo2 %>% 
+  pivot_longer(cols = Flagellates:Fish_Large, names_to = "Species", values_to = "Biomass") %>%
+  mutate(Chl_log10 = round(Chl_log10,2),
+         SST = round(SST,2))
+
+plot_list <- list()
+sp <- mdl$param$Groups$Species
+
+for (i in 1:length(sp)){
+  plot_list[[i]] <- Zoo2 %>%
+    filter(Species == sp[i]) %>%
+    ggplot(aes(x = SST, y = Chl_log10, colour = Biomass, fill = Biomass)) +
+    geom_tile() +
+    scale_fill_distiller(palette = "Spectral") +
+    scale_colour_distiller(palette = "Spectral") +
+    guides(colour = FALSE) + 
+    theme_bw() + 
+    theme(text = element_text(size = 6), legend.key.width = unit(2,"mm")) + 
+    scale_x_continuous(expand = c(0,0)) + 
+    scale_y_continuous(expand = c(0,0)) + 
+    ggtitle(sp[i])
+}
+
+wrap_plots(plot_list, ncol = 3)
+
+```
+
+There is no problem here. It looks like there is a problem with the way it ran older simulations in Control. I need to rerun these.
+
+There is also a problem where there is a step-change in the output when Chl > 10. Perhaps this is related to the phytoplankton parameters? Or the above problem
+
+```{r, message=FALSE, warning=FALSE}
+gg1 <- ggplot(data = enviro, aes(x = chlo, y = phyto_slope)) +
+  geom_line() +
+  ggtitle("Phytoplankton Slope")
+
+gg2 <- ggplot(data = enviro, aes(x = chlo, y = phyto_int)) +
+  geom_line() +
+  ggtitle("Phytoplankton Intercept")
+
+gg3 <- ggplot(data = enviro, aes(x = chlo, y = phyto_max)) +
+  geom_line() +
+  ggtitle("Phytoplankton Max Size")
+
+gg1/gg2/gg3
+
+```
+
+Doesn't seem to be a problem with the phyto parameters. Wait and see if rerunning the Control runs fixes the problem.

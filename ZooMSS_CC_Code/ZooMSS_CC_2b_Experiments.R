@@ -21,7 +21,12 @@ for (r in 1:length(runs)){
   zoo <- read_rds(paste0("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/",runs[r],"/Output/res_",runs[r],".RDS"))
   mdl <- read_rds(paste0("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/",runs[r],"/Output/model_",runs[r],".RDS"))
 
-  Bio <- fZooMSS_SpeciesBiomass(fZooMSS_ExtractSizeRange(zoo, minb, maxb), mdl$param$w[minb:maxb])
+  # These next two lines are a hack to keep the size selection working for the moment.
+  # I will come up with a better solution soon
+  mdl2 <- mdl
+  mdl2$param$w <- mdl$param$w[minb:maxb]
+
+  Bio <- fZooMSS_SpeciesBiomass(fZooMSS_ExtractSizeRange(zoo, minb, maxb), mdl2)
 
   Bio_df <- as_tibble(matrix(unlist(Bio), nrow=length(Bio), byrow=T), .name_repair = "unique") %>%
     rename_with(~mdl$param$Groups$Species) %>%

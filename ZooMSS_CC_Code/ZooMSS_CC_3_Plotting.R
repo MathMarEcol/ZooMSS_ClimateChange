@@ -3,12 +3,18 @@ library(patchwork)
 library(lubridate)
 
 base_dir <- file.path("~","Nextcloud","MME2Work","ZooMSS_ClimateChange","")
-reprocess <- FALSE
+reprocess <- TRUE
 
 if (reprocess == TRUE){
   ## Create a summary df to hold the spatial means of all the data
   runs <- c("Control", "NoCarnivores", "NoOmnivores", "NoFilterFeeders", "OneZoo")
   models <- c("UKESM1", "MPI", "IPSL", "GFDL", "CESM2")
+
+  # runs <- c("Control", "OneZoo")
+  # models <- c("UKESM1")
+
+  zoo <- c("Flagellates","Ciliates","Larvaceans","OmniCopepods","CarnCopepods","Euphausiids","Chaetognaths","Salps","Jellyfish","Zooplankton")
+
 
   for (m in 1:length(models)){
     for (r in 1:length(runs)){
@@ -22,8 +28,12 @@ if (reprocess == TRUE){
         arrange(Date) %>%
         mutate(Run = runs[r],
                Model = models[m],
-               Fish_Total = Fish_Small + Fish_Med + Fish_Large) %>%
-        mutate(FishBiomassChange = (Fish_Total - mean(Fish_Total[Year<1960], na.rm = TRUE))/mean(Fish_Total[Year<1960], na.rm = TRUE) * 100)
+               Zoop_Total = reduce(select(., starts_with(zoo)), `+`), # Sum all the zooplankton
+               Fish_Total = Fish_Small + Fish_Med + Fish_Large,
+               TCB = Zoop_Total + Fish_Total) %>%
+        mutate(ZoopBiomass_Change = (Zoop_Total - mean(Zoop_Total[Year<1960], na.rm = TRUE))/mean(Zoop_Total[Year<1960], na.rm = TRUE) * 100,
+               FishBiomass_Change = (Fish_Total - mean(Fish_Total[Year<1960], na.rm = TRUE))/mean(Fish_Total[Year<1960], na.rm = TRUE) * 100,
+               TCB_Change = (TCB - mean(TCB[Year<1960], na.rm = TRUE))/mean(TCB[Year<1960], na.rm = TRUE) * 100)
 
       if (m == 1 & r == 1){
         datyr <- temp} else{
@@ -33,67 +43,45 @@ if (reprocess == TRUE){
     }
   }
 
-  write_rds(datyr, "ClimateChange_Compiled_withZooMSS_GlobalYr.rds")
+  write_rds(datyr, file.path("Output","ClimateChange_Compiled_withZooMSS_GlobalYr.rds"))
 } else{
-  datyr <- read_rds("ClimateChange_Compiled_withZooMSS_GlobalYr.rds")
+  datyr <- read_rds(file.path("Output","ClimateChange_Compiled_withZooMSS_GlobalYr.rds"))
 }
 
 
-graphics.off()
-x11(width = 16, height = 12)
-(ggB <- ggplot(data = datyr, aes(x = Date, y = Fish_Total, colour = Experiment)) +
-    geom_line() +
-    theme_bw() +
-    facet_grid(vars(Run), vars(Model), scales = "free_y"))
-ggsave("Figures/Fish_TotalBiomass.pdf")
+fPlot_Experiment <- function(dat, var){
+  # graphics.off()
+  # x11(width = 16, height = 12)
 
-graphics.off()
-x11(width = 16, height = 12)
-(ggFS <- ggplot(datyr, aes(x = Date, y = Fish_Small, colour = Experiment)) +
-    geom_line() +
-    theme_bw() +
-    facet_grid(vars(Run), vars(Model), scales = "free_y"))
-ggsave("Figures/Fish_SmallBiomass.pdf")
+  var <- enquo(var)
+  (gg <- ggplot(data = dat, aes(x = Date, y = !!var, colour = Experiment)) +
+      geom_line() +
+      theme_bw() +
+      facet_grid(vars(Run), vars(Model), scales = "free_y"))
 
-graphics.off()
-x11(width = 16, height = 12)
-(ggFL <- ggplot(datyr, aes(x = Date, y = Fish_Med, colour = Experiment)) +
-    geom_line() +
-    theme_bw() +
-    facet_grid(vars(Run), vars(Model), scales = "free_y"))
-ggsave("Figures/Fish_MedBiomass.pdf")
+  ggsave(file.path("Figures",paste0(rlang::quo_text(var),"_Biomass.pdf")), width = 20, height = 12)
 
-graphics.off()
-x11(width = 16, height = 12)
-(ggFL <- ggplot(datyr, aes(x = Date, y = Fish_Large, colour = Experiment)) +
-    geom_line() +
-    theme_bw() +
-    facet_grid(vars(Run), vars(Model), scales = "free_y"))
-ggsave("Figures/Fish_LargeBiomass.pdf")
+  return(gg)
+}
 
 
-graphics.off()
-x11(width = 16, height = 12)
-(ggOC <- ggplot(datyr, aes(x = Date, y = OmniCopepods, colour = Experiment)) +
-    geom_line() +
-    theme_bw() +
-    facet_grid(vars(Run), vars(Model), scales = "free_y"))
-ggsave("Figures/OmniCopepods_TotalBiomass.pdf")
+gg <- fPlot_Experiment(datyr, Zoop_Total)
+gg <- fPlot_Experiment(datyr, Fish_Total)
+gg <- fPlot_Experiment(datyr, TCB)
 
-graphics.off()
-x11(width = 16, height = 12)
-(ggCC <- ggplot(datyr, aes(x = Date, y = CarnCopepods, colour = Experiment)) +
-    geom_line() +
-    theme_bw() +
-    facet_grid(vars(Run), vars(Model), scales = "free_y"))
-ggsave("Figures/CarnCopepods_TotalBiomass.pdf")
+gg <- fPlot_Experiment(datyr, Fish_Small)
+gg <- fPlot_Experiment(datyr, Fish_Med)
+gg <- fPlot_Experiment(datyr, Fish_Large)
 
+gg <- fPlot_Experiment(datyr, OmniCopepods)
+gg <- fPlot_Experiment(datyr, CarnCopepods)
+gg <- fPlot_Experiment(datyr, Euphausiids)
+gg <- fPlot_Experiment(datyr, Chaetognaths)
+gg <- fPlot_Experiment(datyr, Larvaceans)
+gg <- fPlot_Experiment(datyr, Salps)
+gg <- fPlot_Experiment(datyr, Jellyfish)
 
-graphics.off()
-x11(width = 16, height = 12)
-(ggBC <- ggplot(datyr, aes(x = Date, y = FishBiomassChange, colour = Experiment)) +
-    geom_line() +
-    theme_bw() +
-    facet_grid(vars(Run), vars(Model), scales = "fixed"))
-ggsave("Figures/Fish_BiomassChange.pdf")
+gg <- fPlot_Experiment(datyr, ZoopBiomass_Change)
+gg <- fPlot_Experiment(datyr, FishBiomass_Change)
+gg <- fPlot_Experiment(datyr, TCB_Change)
 

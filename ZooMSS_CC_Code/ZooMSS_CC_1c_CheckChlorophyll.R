@@ -236,3 +236,60 @@ wrap_plots(myplots, guides = "collect") + plot_layout(ncol = 4, widths = c(1, 1,
 ggsave("Figures/ESM_Output.png", dpi = 300)
 ggsave("Figures/ESM_Output.pdf")
 
+
+
+
+
+
+
+
+library(tidyverse)
+library(patchwork)
+library(lubridate)
+
+base_dir <- file.path("~","Nextcloud","MME2Work","ZooMSS_ClimateChange","")
+reprocess <- TRUE
+
+if (reprocess == TRUE){
+
+    ## Create a summary df to hold the spatial means of all the data
+
+  ModelArray <- c("CESM2", "GFDL", "IPSL",
+                  "MPI", "UKESM1")
+
+  ExpArray <- c("historical", "ssp126", "ssp370", "ssp585")
+
+  for (m in 1:length(ModelArray)){
+
+      dat <- read_rds(paste0(base_dir, "ClimateChange_Compiled_withZooMSS_",ModelArray[m],"_Control.rds"))
+
+      temp <- dat %>%
+        group_by(Date, Year, Experiment) %>%
+        summarise(Chl = mean(Chl, na.rm = TRUE),
+                  SST = mean(SST, na.rm = TRUE),) %>%
+        ungroup() %>%
+        arrange(Date) %>%
+        mutate(Model = ModelArray[m])
+
+      if (m == 1){
+        datyr <- temp} else{
+          datyr <- bind_rows(datyr, temp)
+        }
+      rm(temp, dat)
+    }
+
+#   write_rds(datyr, file.path("Output","ClimateChange_Compiled_withZooMSS_GlobalYr.rds"))
+# } else{
+#   datyr <- read_rds(file.path("Output","ClimateChange_Compiled_withZooMSS_GlobalYr.rds"))
+}
+
+datyr <- datyr %>%
+  mutate(Chl_log10 = log10(Chl))
+
+
+gg <- ggplot(data = datyr, aes(x = Date, y = Chl_log10, colour = Experiment)) +
+  geom_line() +
+  theme_bw() +
+  facet_wrap(vars(Model), scales = "free_y", ncol = 1)
+ggsave("Figures/Chl_TimeSeries.pdf")
+

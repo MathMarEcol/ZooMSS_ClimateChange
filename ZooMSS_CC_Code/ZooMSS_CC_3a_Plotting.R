@@ -1,9 +1,18 @@
 library(tidyverse)
 library(patchwork)
 library(lubridate)
+library(raster)
 
 base_dir <- file.path("~","Nextcloud","MME2Work","ZooMSS_ClimateChange","")
-reprocess <- FALSE
+reprocess <- TRUE
+
+rast <- raster(nrows=180, ncols=360)
+area_df <- as.data.frame(rast, xy = TRUE, na.rm = FALSE) %>%
+  dplyr::select(-layer) %>%
+  bind_cols(as.data.frame(area(rast))) %>%
+  rename(area = layer, Lon = x, Lat = y)
+
+
 
 if (reprocess == TRUE){
   ## Create a summary df to hold the spatial means of all the data
@@ -22,6 +31,7 @@ if (reprocess == TRUE){
       dat <- read_rds(paste0(base_dir, "ClimateChange_Compiled_withZooMSS_",models[m],"_",runs[r],".rds"))
 
       temp <- dat %>%
+        left_join(area_df, by = c("Lon", "Lat")) %>%
         group_by(Date, Year, Experiment) %>%
         summarise(across(Flagellates:Fish_Large, ~mean(.x, na.rm = TRUE))) %>%
         ungroup() %>%

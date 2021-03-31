@@ -7,10 +7,10 @@ indir="/Users/jason/Nextcloud/MME1Data/ZooMSS_Climate_Change/raw/tos/"
 outdir="/Users/jason/Nextcloud/MME1Data/ZooMSS_Climate_Change/regrid/tos/"
 
 # Declare an array of string with type
-# declare -a ModelArray=("CESM2" "GFDL-ESM4" "IPSL-CM6A-LR" "MPI-ESM1" "UKESM1-0-LL")
+# declare -a ModelArray=("CESM2" "GFDL-ESM4" "IPSL-CM6A-LR" "MPI-ESM1" "UKESM1-0-LL" "CanESM5-CanOE")
 # declare -a ExpArray=("historical" "ssp126" "ssp370" "ssp585")
 
-declare -a ModelArray=("IPSL-CM6A-LR")
+declare -a ModelArray=("CanESM5-CanOE")
 declare -a ExpArray=("historical" "ssp126" "ssp370" "ssp585")
 
 # Iterate the string array using for loop

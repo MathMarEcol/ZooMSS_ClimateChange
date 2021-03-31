@@ -12,10 +12,10 @@ library(tidyverse)
 base_dir <- "/Users/jason/Nextcloud/MME1Data/ZooMSS_Climate_Change/merged/"
 
 ModelArray <- c("CESM2", "GFDL-ESM4", "IPSL-CM6A-LR",
-                "MPI-ESM1-2-HR", "UKESM1-0-LL")
+                "MPI-ESM1-2-HR", "UKESM1-0-LL", "CanESM5-CanOE")
 
 ModelArray2 <- c("CESM2", "GFDL-ESM4", "IPSL-CM6A-LR",
-                 "MPI-ESM1-2-LR", "UKESM1-0-LL")
+                 "MPI-ESM1-2-LR", "UKESM1-0-LL", "CanESM5-CanOE")
 
 ExpArray <- c("historical")
 chl_conv <- c(1e6, 1e6, 1e3, 1e6, 1e6)

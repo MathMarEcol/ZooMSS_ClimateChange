@@ -7,8 +7,9 @@ indir="/Users/jason/Nextcloud/MME1Data/ZooMSS_Climate_Change/raw/chl/"
 outdir="/Users/jason/Nextcloud/MME1Data/ZooMSS_Climate_Change/regrid/chl/"
 
 # Declare an array of string with type
-declare -a ModelArray=("CESM2" "GFDL-ESM4" "MPI-ESM1" "UKESM1-0-LL" "IPSL-CM6A-LR")
+#declare -a ModelArray=("CESM2" "GFDL-ESM4" "MPI-ESM1" "UKESM1-0-LL" "IPSL-CM6A-LR" "CanESM5-CanOE")
 declare -a ExpArray=("historical" "ssp126" "ssp370" "ssp585")
+declare -a ModelArray=("CanESM5-CanOE")
 
 # Iterate the string array using for loop
 for m in ${ModelArray[@]}; do

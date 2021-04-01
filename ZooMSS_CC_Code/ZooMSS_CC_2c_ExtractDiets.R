@@ -16,50 +16,46 @@ fZooMS_MakeDietTibble <- function(mat, mdl){
 
 base_dir <- file.path("~","Nextcloud","MME2Work","ZooMSS_ClimateChange","")
 
-runs <- c("Control", "NoCarnivores", "NoOmnivores", "NoFilterFeeders", "OneZoo")
-
-#### Load ZooMSS Matrix Data ####
 enviro_data <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/enviro_CMIP_Matrix_wPhyto.RDS")
 nc <- read_rds(paste0(base_dir, "ClimateChange_Compiled.rds"))
 
+# Setup vector of models and runs
+runs <- c("Control", "NoCarnivores", "NoOmnivores", "NoFilterFeeders", "OneZoo")
 models <- str_extract(unique(nc$Model), "[^-]+") # Extract model names
+exps <- unique(nc$Experiment)
 
 minb <- 1
 maxb <- 158 # Max weight of 100 kg.
 
 for (r in 1:1){#length(runs)){
 
-  zoo <- read_rds(paste0("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/",runs[r],"/Output/diets_",runs[r],".RDS"))
-  mdl <- read_rds(paste0("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/",runs[r],"/Output/model_",runs[r],".RDS"))
-
-
-  cellID <- ann(as.matrix(enviro_data[,c("sst", "chlo")]),
-             as.matrix(nc[,c("SST", "Chl_log10")]),
-             k = 1, verbose = FALSE)$knnIndexDist[,1]
-
-  zoo2 <- zoo[cellID]
-
-  system.time(out2 <- map_df(.x = zoo2, mdl = mdl,  .f = fZooMS_MakeDietTibble))
-
-
-
+  zoo <- read_rds(paste0("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/",runs[r],"/Output/diets_",runs[r],".RDS")) # Run specific model output
+  mdl <- read_rds(paste0("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/",runs[r],"/Output/model_",runs[r],".RDS")) # Model details
 
   for (m in 1:length(models)){
+    for (ex in 1:length(exps)){
 
-    nc_mdl <- nc2 %>%
-      filter(str_detect(Model, models[m]))
+      nc_mex <- nc %>%
+        filter(str_detect(Model, models[m])) %>%
+        filter(str_detect(Experiment, exps[ex]))
 
-    # temp folder for the moment while RDM is down
-    out_dir <- file.path("~","Dropbox","TempZooMSSData","")
-    write_rds(nc_mdl, paste0(out_dir, "ClimateChange_Compiled_withZooMSS_",models[m],"_",runs[r],".rds"))
+      # Get cellID for enviro data for the climate runs
+      cellID <- ann(as.matrix(enviro_data[,c("sst", "chlo")]),
+                    as.matrix(nc_mex[,c("SST", "Chl_log10")]),
+                    k = 1, verbose = FALSE)$knnIndexDist[,1]
 
-    # write_rds(nc_mdl, paste0(base_dir, "ClimateChange_Compiled_withZooMSS_",models[m],"_",runs[r],".rds"))
-    rm(nc_mdl)
+      zoo_mex <- zoo[cellID]
 
+      system.time(out <- map_df(.x = zoo_mex, mdl = mdl,  .f = fZooMS_MakeDietTibble))
+
+      write_rds(out, paste0(base_dir, "ClimateChange_withZooMSS_Diets_",exps[ex],"_", models[m],"_",runs[r],".rds"))
+
+      rm(out, zoo_mex, cellID, nc_mex)
+    }
   }
-
-  rm(nc2, Bio, Bio_df, out)
+  rm(zoo, mdl)
 }
+
 
 
 

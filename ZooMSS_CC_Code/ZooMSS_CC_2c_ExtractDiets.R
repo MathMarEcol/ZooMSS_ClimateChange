@@ -7,8 +7,7 @@ fZooMS_MakeDietTibble <- function(mat, mdl){
   suppressMessages(
     out <- as_tibble(mat, .name_repair = "unique") %>%
       rename_with(~c("Phyto_Small", "Phyto_Med", "Phyto_Large", mdl$param$Groups$Species)) %>%
-      mutate(Predator = mdl$param$Groups$Species,
-             cellID = row_number()) %>%
+      mutate(Predator = mdl$param$Groups$Species) %>%
       pivot_longer(cols = Phyto_Small:Fish_Large, names_to = "Prey", values_to = "Diet")
   )
   return(out)
@@ -32,6 +31,11 @@ for (r in 1:1){#length(runs)){
   zoo <- read_rds(paste0("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/",runs[r],"/Output/diets_",runs[r],".RDS")) # Run specific model output
   mdl <- read_rds(paste0("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/",runs[r],"/Output/model_",runs[r],".RDS")) # Model details
 
+  out <- map_df(.x = zoo, mdl = mdl,  .f = fZooMS_MakeDietTibble, .id="cellID")
+
+  write_rds(out, "Test.rds")
+
+
   for (m in 1:length(models)){
     for (ex in 1:length(exps)){
 
@@ -44,9 +48,13 @@ for (r in 1:1){#length(runs)){
                     as.matrix(nc_mex[,c("SST", "Chl_log10")]),
                     k = 1, verbose = FALSE)$knnIndexDist[,1]
 
+
+
+
       zoo_mex <- zoo[cellID]
 
-      system.time(out <- map_df(.x = zoo_mex, mdl = mdl,  .f = fZooMS_MakeDietTibble))
+
+
 
       write_rds(out, paste0(base_dir, "ClimateChange_withZooMSS_Diets_",exps[ex],"_", models[m],"_",runs[r],".rds"))
 

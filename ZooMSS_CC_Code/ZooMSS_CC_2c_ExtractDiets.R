@@ -39,6 +39,7 @@ for (r in 1:1){#length(runs)){
   for (m in 1:length(models)){
     for (ex in 1:length(exps)){
 
+      # Subset nc for model and experiment
       nc_mex <- nc %>%
         filter(str_detect(Model, models[m])) %>%
         filter(str_detect(Experiment, exps[ex]))
@@ -53,8 +54,7 @@ for (r in 1:1){#length(runs)){
 
       zoo_mex <- zoo[cellID]
 
-
-
+      profvis::profvis({out <- map_df(.x = zoo_mex, mdl = mdl,  .f = fZooMS_MakeDietTibble)})
 
       write_rds(out, paste0(base_dir, "ClimateChange_withZooMSS_Diets_",exps[ex],"_", models[m],"_",runs[r],".rds"))
 

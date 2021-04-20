@@ -49,11 +49,7 @@ for (r in 1:length(runs)){
     nc_mdl <- nc2 %>%
       filter(str_detect(Model, models[m]))
 
-    # temp folder for the moment while RDM is down
-    out_dir <- file.path("~","Dropbox","TempZooMSSData","")
-    write_rds(nc_mdl, paste0(out_dir, "ClimateChange_Compiled_withZooMSS_",models[m],"_",runs[r],".rds"))
-
-    # write_rds(nc_mdl, paste0(base_dir, "ClimateChange_Compiled_withZooMSS_",models[m],"_",runs[r],".rds"))
+    write_rds(nc_mdl, paste0(file.path(base_dir,"Abundance"), "ClimateChange_Compiled_withZooMSS_",models[m],"_",runs[r],".rds"))
     rm(nc_mdl)
 
   }

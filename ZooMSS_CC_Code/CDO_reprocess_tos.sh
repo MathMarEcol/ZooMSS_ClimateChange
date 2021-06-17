@@ -7,10 +7,7 @@ indir="/Users/jason/Nextcloud/MME1Data/ZooMSS_Climate_Change/raw/tos/"
 outdir="/Users/jason/Nextcloud/MME1Data/ZooMSS_Climate_Change/regrid/tos/"
 
 # Declare an array of string with type
-# declare -a ModelArray=("CESM2" "GFDL-ESM4" "IPSL-CM6A-LR" "MPI-ESM1" "UKESM1-0-LL" "CanESM5-CanOE")
-# declare -a ExpArray=("historical" "ssp126" "ssp370" "ssp585")
-
-declare -a ModelArray=("CanESM5-CanOE")
+declare -a ModelArray=("CESM2" "GFDL-ESM4" "IPSL-CM6A-LR" "MPI-ESM1" "UKESM1-0-LL" "CanESM5-CanOE" "CNRM-ESM2-1")
 declare -a ExpArray=("historical" "ssp126" "ssp370" "ssp585")
 
 # Iterate the string array using for loop
@@ -28,7 +25,27 @@ for m in ${ModelArray[@]}; do
 			cdo -sinfov $curr_file # Print the current details of the file
 
 			out_name1="tempfile_tos.nc"
+			
+			# Problems with tri-polar circular grids not being correctly dealt with. Need to use selindexbox
+			if [ $m = "CNRM-ESM2-1" ]
+			then
+			cdo -L -remapbil,global_1 -selyear,1950/2100 -selindexbox,2,361,2,293 -selname,tos $curr_file $out_name1 # Remap to 1 degree global on the half-degree
+			fi
+
+			if [ $m = "IPSL-CM6A-LR" ]
+			then
+			cdo -L -remapbil,global_1 -selyear,1950/2100 -selindexbox,2,361,2,331 -selname,tos $curr_file $out_name1 # Remap to 1 degree global on the half-degree
+			fi
+
+			if [ $m = "CanESM5-CanOE" ] # Still has some weird Artic stuff but can't seem to solve with -selindexbox
+			then
 			cdo -L -remapbil,global_1 -selyear,1950/2100 -selname,tos $curr_file $out_name1 # Remap to 1 degree global on the half-degree
+			fi
+
+			if [ $m = "GFDL-ESM4" ] || [ $m = "UKESM1-0-LL" ]  || [ $m = "CESM2" ] # These are correctly identified so no problems
+			then
+			cdo -L -remapbil,global_1 -selyear,1950/2100 -selname,tos $curr_file $out_name1 # Remap to 1 degree global on the half-degree
+			fi
 
 			annual_name=${curr_file/_gn_/_onedeg_} # Replace gn or gr with onedeg in filename
 			annual_name=${annual_name/_gr_/_onedeg_}
@@ -47,3 +64,19 @@ for m in ${ModelArray[@]}; do
 
 	done
 done
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

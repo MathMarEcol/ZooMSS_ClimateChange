@@ -3,12 +3,14 @@ library(yaImpute)
 
 source("~/GitHub/ZooMSS/fZooMSS_Xtras.R")
 
-base_dir <- file.path("~","Nextcloud","MME2Work","ZooMSS_ClimateChange","")
+base_dir <- file.path("~","Nextcloud","MME2Work","ZooMSS","_LatestModel","20220315_TheMatrix2","")
 
-runs <- c("Control", "NoCarnivores", "NoOmnivores", "NoFilterFeeders", "OneZoo")
+runs <- c("Control", "FixedCarbon")
 
 #### Load ZooMSS Matrix Data ####
-enviro_data <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/enviro_CMIP_Matrix_wPhyto.RDS")
+enviro_data <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20220315_TheMatrix2/Control/ClimateChange_Compiled_Distinct.rds") %>%
+  rename(cellID = FID)
+
 nc <- read_rds(paste0(base_dir, "ClimateChange_Compiled.rds"))
 
 models <- str_extract(unique(nc$Model), "[^-]+") # Extract model names
@@ -18,8 +20,8 @@ maxb <- 158 # Max weight of 100 kg.
 
 for (r in 1:length(runs)){
 
-  zoo <- read_rds(paste0("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/",runs[r],"/Output/res_",runs[r],".RDS"))
-  mdl <- read_rds(paste0("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20200917_CMIP_Matrix/",runs[r],"/Output/model_",runs[r],".RDS"))
+  zoo <- read_rds(file.path(base_dir,runs[r],"Output",paste0("res_",runs[r],".RDS")))
+  mdl <- read_rds(file.path(base_dir,runs[r],"Output",paste0("model_",runs[r],".RDS")))
 
   # These next two lines are a hack to keep the size selection working for the moment.
   # I will come up with a better solution soon

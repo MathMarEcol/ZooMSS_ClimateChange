@@ -16,7 +16,7 @@ nc <- read_rds(paste0(base_dir, "ClimateChange_Compiled.rds"))
 models <- str_extract(unique(nc$Model), "[^-]+") # Extract model names
 
 minb <- 1
-maxb <- 158 # Max weight of 100 kg.
+maxb <- 158 # Max weight of 100 kg
 
 for (r in 1:length(runs)){
 
@@ -51,7 +51,7 @@ for (r in 1:length(runs)){
     nc_mdl <- nc2 %>%
       filter(str_detect(Model, models[m]))
 
-    write_rds(nc_mdl, paste0(file.path(base_dir,"Abundance"), "ClimateChange_Compiled_withZooMSS_",models[m],"_",runs[r],".rds"))
+    write_rds(nc_mdl, paste0(file.path(base_dir,"Abundance_"), "ClimateChange_Compiled_withZooMSS_",models[m],"_",runs[r],".rds"))
     rm(nc_mdl)
 
   }

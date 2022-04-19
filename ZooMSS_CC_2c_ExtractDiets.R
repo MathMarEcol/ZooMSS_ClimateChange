@@ -10,7 +10,7 @@ runs <- c("Control", "FixedCarbon")
 
 #### Load ZooMSS Matrix Data ####
 enviro_data <- read_rds("~/Nextcloud/MME2Work/ZooMSS/_LatestModel/20220315_TheMatrix2/Control/ClimateChange_Compiled_Distinct.rds") %>%
-  rename(cellID = FID)
+  mutate(cellID = 1:n())
 
 nc <- read_rds(paste0(base_dir, "ClimateChange_Compiled.rds"))
 

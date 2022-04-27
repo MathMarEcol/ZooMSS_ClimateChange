@@ -45,7 +45,7 @@ for (r in 1:length(runs)){
       # profvis::profvis({out <- map_df(.x = zoo_mex, mdl = mdl,  .f = fZooMS_MakeDietTibble)})
       # out <- map_df(.x = zoo_mex, mdl = mdl,  .f = fZooMS_MakeDietTibble)
 
-      write_rds(nc_mex, paste0(file.path(base_dir,"Diets_"), "ClimateChange_Compiled_withZooMSS_",models[m],"_",runs[r],".rds"))
+      write_rds(zoo_mex, paste0(file.path(base_dir,"Diets_"), "ClimateChange_Compiled_withZooMSS_",models[m],"_",runs[r],".rds"))
       # if (r == 1){
       #   write_rds(nc_mex, file.path(base_dir, "Diets", "EnviroData", paste0("EnviroData_Diets_",exps[ex],"_", models[m],".rds")))
       # }

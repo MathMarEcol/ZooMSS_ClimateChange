@@ -51,7 +51,7 @@ for (r in 1:length(runs)){
     nc_mdl <- nc2 %>%
       filter(str_detect(Model, models[m]))
 
-    write_rds(nc_mdl, paste0(file.path(base_dir,"Abundance_"), "ClimateChange_Compiled_withZooMSS_",models[m],"_",runs[r],".rds"))
+    write_rds(nc_mdl, paste0(file.path(base_dir,"Biomass_"), "ClimateChange_Compiled_withZooMSS_",models[m],"_",runs[r],".rds"))
     rm(nc_mdl)
 
   }

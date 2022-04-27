@@ -1,7 +1,7 @@
 
 library(tidyverse)
 
-datn <- read_rds("/Users/jason/Nextcloud/MME2Work/ZooMSS/_LatestModel/20220315_TheMatrix2/Abundance_ClimateChange_Compiled_withZooMSS_IPSL_Control.rds")
+datn <- read_rds("/Users/jason/Nextcloud/MME2Work/ZooMSS/_LatestModel/20220315_TheMatrix2/Biomass_ClimateChange_Compiled_withZooMSS_IPSL_Control.rds")
 
 dato <- read_rds("/Users/jason/Downloads/ClimateChange_Compiled_withZooMSS_IPSL_Control.rds")
 

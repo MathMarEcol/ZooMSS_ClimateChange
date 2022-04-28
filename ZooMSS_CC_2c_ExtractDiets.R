@@ -31,7 +31,8 @@ for (r in 1:length(runs)){
       # Subset nc for model and experiment
       nc_mex <- nc %>%
         filter(str_detect(Model, models[m])) %>%
-        filter(str_detect(Experiment, exps[ex]))
+        filter(str_detect(Experiment, exps[ex])) %>%
+        select("Lon","Lat","Date","SST","chlo","Model","Experiment","Chl_log10")
 
       # Get cellID for enviro data for the climate runs
       cellID <- ann(as.matrix(enviro_data[,c("sst", "chlo")]),
@@ -45,7 +46,8 @@ for (r in 1:length(runs)){
       # profvis::profvis({out <- map_df(.x = zoo_mex, mdl = mdl,  .f = fZooMS_MakeDietTibble)})
       # out <- map_df(.x = zoo_mex, mdl = mdl,  .f = fZooMS_MakeDietTibble)
 
-      write_rds(zoo_mex, paste0(file.path(base_dir,"Diets_"), "ClimateChange_Compiled_withZooMSS_",models[m],"_",runs[r],".rds"))
+      write_rds(zoo_mex, paste0(file.path(base_dir,"Diets_"), "ClimateChange_Compiled_withZooMSS_",models[m],"_",exps[exp],"_",runs[r],".rds"))
+      write_rds(nc_mex, paste0(file.path(base_dir,"DietInfo_"), "ClimateChange_Compiled_withZooMSS_",models[m],"_",exps[exp],"_",runs[r],".rds"))
       # if (r == 1){
       #   write_rds(nc_mex, file.path(base_dir, "Diets", "EnviroData", paste0("EnviroData_Diets_",exps[ex],"_", models[m],".rds")))
       # }

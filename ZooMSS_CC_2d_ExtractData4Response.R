@@ -3,11 +3,11 @@ library(yaImpute)
 
 source("~/GitHub/ZooMSS/fZooMSS_Xtras.R")
 
-base_dir <- file.path("~","Nextcloud","MME2Work-Q1216","ZooMSS","_LatestModel","20220817_TheMatrixESM")
+base_dir <- file.path("~","Nextcloud","MME2Work-Q1216","ZooMSS","_LatestModel","20220925_TheMatrixESM")
 runs <- c("Control", "FixedCarbon")
 
 #### Load ZooMSS Matrix Data ####
-enviro_data <- read_rds(file.path(base_dir,"ClimateChange_Compiled_Distinct_TheMatrixESM.rds"))
+# enviro_data <- read_rds(file.path(base_dir,"ClimateChange_Compiled_Distinct_TheMatrixESM.rds"))
 
 nc <- read_rds(file.path(base_dir, "ClimateChange_Compiled_New.rds"))
 
